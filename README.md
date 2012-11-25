@@ -1,7 +1,5 @@
-bcc_lib
-=======
-
 Blank Canvas Cape user-space driver
+===================================
 
 This project provides a user-space application for configuring the
 Blank Canvas Cape (BCC), a Beaglebone cape which provides a Xilinx
@@ -58,3 +56,38 @@ quietly configure the FPGA with the contents of BITSTREAM.
    
 -V prints the tool version
 
+bcc_lib
+=======
+
+This is the underlying access library which provides all the interfaces
+needed to configure the FPGA, program the SPI flash configuration memory
+and communicate with the SPI slave. The following functions are
+available:
+
+int bcc_i2c_get_prom(bfpga *s, int saddr, __u8 loc);
+
+int bcc_i2c_set_prom(bfpga *s, int saddr, __u8 loc, __u8 dat);
+
+int bcc_i2c_get(bfpga *s, int saddr);
+
+int bcc_i2c_set(bfpga *s, int saddr, __u8 dat);
+
+int bcc_i2c_pcf_rd(bfpga *s, int bit);
+
+void bcc_i2c_pcf_wr(bfpga *s, int bit, int val);
+
+int bcc_spi_txrx(bfpga *s, uint8_t *tx, uint8_t *rx, __u32 len);
+
+bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose);
+
+FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n);
+
+int bcc_cfg(bfpga *s, char *bitfile);
+
+int bcc_pgm(bfpga *s, char *bitfile);
+
+void bcc_delete(bfpga *s);
+
+Usage details can be inferred from the source.
+
+E. Brombaugh 11-24-2012
