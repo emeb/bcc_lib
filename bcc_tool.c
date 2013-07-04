@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	}
 
 	/* open up hardware */
-	if((bs = bcc_init(3, 1, 0, verbose)) == NULL)
+	if((bs = bcc_init(1, 1, 0, verbose)) == NULL)
 	{
 		fprintf(stderr, "Couldn't access hardware\n");
 		exit(2);
