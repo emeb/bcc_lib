@@ -87,8 +87,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Couldn't access hardware\n");
 		exit(2);
 	}
-	
-	/* send bitstream to FPGA or SPI Flash if bitfile name available*/
+
+        /* send bitstream to FPGA or SPI Flash if bitfile name available*/
 	if(argc > flags + 1)
 	{
 		if(program == 1)
@@ -119,8 +119,8 @@ int main(int argc, char **argv)
 		int ret;
 		uint8_t tx[] = {0x00, 0x00, 0x00, 0x00, 0x00};
 		uint8_t rx[ARRAY_SIZE(tx)] = {0, };
-		
-		/* Build message */
+
+                /* Build message */
 		tx[0] = addr & 0x7f;	// set address
 		if(read)
 		{
@@ -136,8 +136,8 @@ int main(int argc, char **argv)
 			tx[3] = (data >>  8) & 0xff;
 			tx[4] = (data >>  0) & 0xff;
 		}
- 
-		/* send a message */
+
+                /* send a message */
 		ret = bcc_spi_txrx(bs, tx, rx, ARRAY_SIZE(tx));
 		if (ret == 1)
 		{
@@ -160,9 +160,9 @@ int main(int argc, char **argv)
 			fprintf(stderr, "\n");
 		}
 	}
-	
-	/* All done */
+
+        /* All done */
 	bcc_delete(bs);
-	
-	return 0;
+
+        return 0;
 }
