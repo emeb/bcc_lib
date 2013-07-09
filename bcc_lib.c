@@ -193,7 +193,7 @@ bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose)
 	uint8_t mode = 0;
 	//uint8_t mode = SPI_CPHA;
 	//uint8_t mode = SPI_CPOL;
-	int i;
+	//int i;
 	
 	/* allocate the object */
 	if((s = calloc(1, sizeof(bfpga))) == NULL)
@@ -519,7 +519,7 @@ int bcc_pgm(bfpga *s, char *bitfile)
 	int i, ct, read;
 	long n;
 	unsigned char txbuf[READBUFSIZE], rxbuf[READBUFSIZE], *cp;
-	char *fcfg_fname = "flash_prog.bit";
+	//char *fcfg_fname = "flash_prog.bit";
 	FILE *fd;
 	
 #if 0	
