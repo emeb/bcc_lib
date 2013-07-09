@@ -51,7 +51,7 @@ const char *bit_hdr_strings[] =
 const char *deviceid = "3s200avq100";
 
 /* M25P20 Flash ID */
-const char flash_id[] = 
+const char flash_id[] =
 {
 	0x20, 0x20, 0x12
 };
@@ -60,7 +60,7 @@ const char flash_id[] =
 void qprintf(bfpga *s, char *fmt, ...)
 {
 	va_list args;
-	
+
 	if(s->verbose)
 	{
 		va_start(args, fmt);
@@ -95,7 +95,7 @@ static inline __s32 i2c_smbus_access(int file, char read_write, __u8 command,
 int bcc_i2c_get_prom(bfpga *s, int saddr, __u8 loc)
 {
 	union i2c_smbus_data data;
-	
+
 	/* set address */
 	if(i2c_set_slave_addr(s->i2c_file, saddr))
 		return -1;
@@ -112,9 +112,9 @@ int bcc_i2c_get_prom(bfpga *s, int saddr, __u8 loc)
 int bcc_i2c_set_prom(bfpga *s, int saddr, __u8 loc, __u8 dat)
 {
 	union i2c_smbus_data data;
-	
+
 	data.byte = dat;
-	
+
 	/* set address */
 	if(i2c_set_slave_addr(s->i2c_file, saddr))
 		return -1;
@@ -128,7 +128,7 @@ int bcc_i2c_set_prom(bfpga *s, int saddr, __u8 loc, __u8 dat)
 int bcc_i2c_get(bfpga *s, int saddr)
 {
 	union i2c_smbus_data data;
-	
+
 	/* set address */
 	if(i2c_set_slave_addr(s->i2c_file, saddr))
 		return -1;
@@ -180,7 +180,7 @@ int bcc_spi_txrx(bfpga *s, uint8_t *tx, uint8_t *rx, __u32 len)
 		.speed_hz = 2000000,
 		.bits_per_word = 8,
 	};
-	
+
 	return ioctl(s->spi_file, SPI_IOC_MESSAGE(1), &tr);
 }
 
@@ -193,18 +193,18 @@ bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose)
 	uint8_t mode = 0;
 	//uint8_t mode = SPI_CPHA;
 	//uint8_t mode = SPI_CPOL;
-	int i;
-	
+	//int i;
+
 	/* allocate the object */
 	if((s = calloc(1, sizeof(bfpga))) == NULL)
 	{
 		qprintf(s, "bcc_init: Couldn't allocate bfpga object\n");
 		goto fail0;
 	}
-	
+
 	/* set verbose level */
 	s->verbose = verbose;
-	
+
 	/* open I2C bus */
 	sprintf(filename, "/dev/i2c-%d", i2c_bus);
 	s->i2c_file = open(filename, O_RDWR);
@@ -216,16 +216,15 @@ bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose)
 	}
 	else
 		qprintf(s, "bcc_init: opened I2C device %s\n", filename);
-		
-	
+
 #if 0
 	/* Check for the Beagle FPGA ID PROM */
 	for(i=0;i<6;i++)
 	{
 		int value = bcc_i2c_get_prom(s, 0x50, i);
 		qprintf(s, "bcc_init: ID[%1d] = 0x%02X\n", i, value);
-		
-		if(value != idprom[i])                                          
+
+		if(value != idprom[i])
 		{
 			qprintf(s, "bcc_init: IDPROM mismatch - giving up\n");
 			goto fail2;
@@ -233,14 +232,14 @@ bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose)
 	}
 	qprintf(s, "bcc_init: found IDPROM\n");
 #endif
-	
+
 	/* diagnostid - check status of port expander */
 	qprintf(s, "bcc_init: PCF reads 0x%02X\n", bcc_i2c_get(s, 0x38));
 
 	/* Open the SPI port */
 	sprintf(filename, "/dev/spidev%d.%d", spi_bus, spi_add);
 	s->spi_file = open(filename, O_RDWR);
-	
+
 	if(s->spi_file < 0)
 	{
 		qprintf(s, "bcc_init: Couldn't open spi device %s\n", filename);
@@ -256,7 +255,7 @@ bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose)
 	}
 	else
 		qprintf(s, "bcc_init: Set SPI clock to %d Hz\n", speed);
-	
+
 	if(ioctl(s->spi_file, SPI_IOC_WR_MODE, &mode) == -1)
 	{
 		qprintf(s, "bcc_init: Couldn't set SPI mode\n");
@@ -264,17 +263,17 @@ bfpga *bcc_init(int i2c_bus, int spi_bus, int spi_add, int verbose)
 	}
 	else
 		qprintf(s, "bcc_init: Set SPI mode\n");
-	
+
 	/* Check if FPGA already configured */
 	if(bcc_i2c_pcf_rd(s,PCF_FPGA_DONE)==0)
 	{
 		qprintf(s, "bcc_init: FPGA not already configured - DONE not high\n\r");
-	}	
-	
-	/* Allow OMAP to drive SPI bus */
+	}
+
+        /* Allow OMAP to drive SPI bus */
 	bcc_i2c_pcf_wr(s,PCF_FPGA_SPI_MODE,0);		// drive nOE line low
 	qprintf(s, "bcc_init: OMAP Drives SPI bus\n");
-		
+
 	/* success */
 	return s;
 
@@ -295,7 +294,7 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 	FILE *fd;
 	char readbuf[READBUFSIZE], *cp;
 	int read, j, d;
-	
+
 	/* open file or return error*/
 	if(!(fd = fopen(bitfile, "r")))
 	{
@@ -313,7 +312,7 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 	{
 		/* init pointer to keep track */
 		cp = readbuf;
-		
+
 		/* check / skip .bit header */
 		for(j=0;j<13;j++)
 		{
@@ -332,7 +331,7 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 		fclose(fd);
 		return 0;
 	}
-		
+
 	/* Skip File header chunks */
 	for(j=0;j<4;j++)
 	{
@@ -340,15 +339,15 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 		{
 			/* init pointer to keep track */
 			cp = readbuf;
-		
+
 			/* get 1 byte chunk desginator (a,b,c,d) */
 			d = *cp++;
-			
+
 			/* compute chunksize */
 			*n = *cp++;
 			*n <<= 8;
 			*n += *cp;
-			
+
 			/* read chunk */
 			if( (read=fread(readbuf, sizeof(char), *n, fd)) == *n )
 			{
@@ -361,7 +360,7 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 				fclose(fd);
 				return 0;
 			}
-			
+
 			/* Check device type */
 			if(j==1)
 			{
@@ -378,15 +377,15 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 			return 0;
 		}
 	}
-	
+
 	if( (read=fread(readbuf, sizeof(char), 5, fd)) == 5 )
 	{
 		/* init pointer to keep track */
 		cp = readbuf;
-		
+
 		/* Skip final chunk designator */
 		cp++;
-	
+
 		/* compute config data size - modified for 16-bit int & char */
 		*n = *cp++;
 		*n <<= 8;
@@ -403,7 +402,7 @@ FILE *bfpga_open_bitfile(bfpga *s, char *bitfile, long *n)
 		fclose(fd);
 		return 0;
 	}
-	
+
 	/* success */
 	return fd;
 }
@@ -431,22 +430,22 @@ int bcc_cfg(bfpga *s, char *bitfile)
 	/* Set FLASH_DRV */
 	qprintf(s, "bcc_cfg: Setting OMAP -> FPGA cfg\n\r");
 	bcc_i2c_pcf_wr(s,PCF_OMAP_FLASH_DRV,0);		// drive low
-	
-	/* pulse PROG_B low min 500 ns */
+
+        /* pulse PROG_B low min 500 ns */
 	bcc_i2c_pcf_wr(s,PCF_FPGA_PROG,0);			// drive low
 	usleep(1);			// wait a bit
-	
-	/* Wait for INIT low */
+
+        /* Wait for INIT low */
 	qprintf(s, "bcc_cfg: PROG low, Waiting for INIT low\n\r");
 	while(bcc_i2c_pcf_rd(s,PCF_FPGA_INIT)==1)
 	{
 		asm volatile ("nop");	//"nop" means no-operation.  We don't want to do anything during the delay
 	}
-	
-	/* Release PROG */
+
+        /* Release PROG */
 	bcc_i2c_pcf_wr(s,PCF_FPGA_PROG,1);			// set as hi
-	
-	/* Wait for INIT high */
+
+        /* Wait for INIT high */
 	qprintf(s, "bcc_cfg: PROG high, Waiting for INIT high\n\r");
 	while(bcc_i2c_pcf_rd(s,PCF_FPGA_INIT)==0)
 	{
@@ -456,21 +455,21 @@ int bcc_cfg(bfpga *s, char *bitfile)
 	/* wait 5us */
 	usleep(5);
 	qprintf(s, "bcc_cfg: Sending bitstream\n\r");
-	
-	/* Read file & send bitstream to FPGA via SPI */
+
+        /* Read file & send bitstream to FPGA via SPI */
 	ct = 0;
 	while( (read=fread(readbuf, sizeof(char), READBUFSIZE, fd)) > 0 )
 	{
 		/* Send bitstream */
 		bcc_spi_txrx(s, (unsigned char *)readbuf, dummybuf, read);
 		ct += read;
-		
-		/* diagnostic to track buffers */
+
+                /* diagnostic to track buffers */
 		qprintf(s, ".");
 		if(s->verbose)
 			fflush(stdout);
-		
-		/* Check INIT - if low then fail */
+
+                /* Check INIT - if low then fail */
 		if(bcc_i2c_pcf_rd(s,PCF_FPGA_INIT)==0)
 		{
 			qprintf(s, "\n\rbcc_cfg: INIT low during bitstream send\n\r");
@@ -478,13 +477,13 @@ int bcc_cfg(bfpga *s, char *bitfile)
 			return 1;
 		}
 	}
-	
-	/* close file */
+
+        /* close file */
 	qprintf(s, "\n\rbcc_cfg: sent %ld of %ld bytes\n\r", ct, n);
 	qprintf(s, "bcc_cfg: bitstream sent, closing file\n\r");
 	fclose(fd);
-	
-	/* send dummy data while waiting for DONE or !INIT */
+
+        /* send dummy data while waiting for DONE or !INIT */
  	qprintf(s, "bcc_cfg: sending dummy clocks, waiting for DONE or fail\n\r");
 	byte = 0xFF;
 	ct = 0;
@@ -495,18 +494,18 @@ int bcc_cfg(bfpga *s, char *bitfile)
 		ct++;
 	}
  	qprintf(s, "bcc_cfg: %d dummy clocks sent\n\r", ct*8);
-		
-	/* Clear FLASH_DRV */
+
+        /* Clear FLASH_DRV */
 	qprintf(s, "bcc_cfg: Setting FLASH -> FPGA cfg\n\r");
 	bcc_i2c_pcf_wr(s,PCF_OMAP_FLASH_DRV,1);		// drive high
-			
-	/* return status */
+
+        /* return status */
 	if(bcc_i2c_pcf_rd(s,PCF_FPGA_DONE)==0)
 	{
 		qprintf(s, "bcc_cfg: cfg failed - DONE not high\n\r");
 		return 1;	// Done = 0 - error
 	}
-	else	
+	else
 	{
 		qprintf(s, "bcc_cfg: success\n\r");
 		return 0;	// Done = 1 - OK
@@ -519,10 +518,10 @@ int bcc_pgm(bfpga *s, char *bitfile)
 	int i, ct, read;
 	long n;
 	unsigned char txbuf[READBUFSIZE], rxbuf[READBUFSIZE], *cp;
-	char *fcfg_fname = "flash_prog.bit";
+	//char *fcfg_fname = "flash_prog.bit";
 	FILE *fd;
-	
-#if 0	
+
+#if 0
 	/* send special flash cfg bitstream */
 	qprintf(s, "bcc_cfg: sending flash cfg bitstream %s\n\r", fcfg_fname);
 	if(bcc_cfg(s, fcfg_fname))
@@ -548,8 +547,8 @@ int bcc_pgm(bfpga *s, char *bitfile)
 		}
 	}
 	qprintf(s, "bcc_pgm: found Flash ID\n\r");
-	
-	/* open the bitfile */
+
+        /* open the bitfile */
 	if(!(fd = bfpga_open_bitfile(s, bitfile, &n)))
 	{
 		qprintf(s, "bcc_pgm: open bitfile %s failed\n\r", bitfile);
@@ -564,8 +563,8 @@ int bcc_pgm(bfpga *s, char *bitfile)
 	qprintf(s, "bcc_pgm: Sending WREN\n");
 	txbuf[0] = FLASH_WREN;
 	bcc_spi_txrx(s, txbuf, rxbuf, 1);
-	
-	qprintf(s, "bcc_pgm: Sending Bulk Erase\n");
+
+        qprintf(s, "bcc_pgm: Sending Bulk Erase\n");
 	txbuf[0] = FLASH_BE;
 	bcc_spi_txrx(s, txbuf, rxbuf, 1);
 	txbuf[0] = FLASH_RDSR;
@@ -585,8 +584,8 @@ int bcc_pgm(bfpga *s, char *bitfile)
 		return 1;
 	}
 	qprintf(s, "bcc_pgm: Bulk Erase complete (%d checks)\n", i);
-	
-	/* Read file & send bitstream to flash via SPI */
+
+        /* Read file & send bitstream to flash via SPI */
 	qprintf(s, "bcc_pgm: Sending PP\n");
 	ct = 0;
 	while( (read=fread(&txbuf[4], sizeof(char), 256, fd)) > 0 )
@@ -594,18 +593,18 @@ int bcc_pgm(bfpga *s, char *bitfile)
 		/* Send WREN */
 		txbuf[0] = FLASH_WREN;
 		bcc_spi_txrx(s, txbuf, rxbuf, 1);
-	
-		/* Tack on header */
+
+                /* Tack on header */
 		txbuf[0] = FLASH_PP;
 		txbuf[1] = (ct>>16)&0xff;
 		txbuf[2] = (ct>>8)&0xff;
 		txbuf[3] = ct&0xff;
-	
-		/* Send PP & bitstream */
+
+                /* Send PP & bitstream */
 		bcc_spi_txrx(s, (unsigned char *)txbuf, rxbuf, read+4);
 		ct += read;
-		
-		/* Wait for PP to complete */
+
+                /* Wait for PP to complete */
 		txbuf[0] = FLASH_RDSR;
 		txbuf[1] = 0x00;
 		i = 0;
@@ -622,15 +621,15 @@ int bcc_pgm(bfpga *s, char *bitfile)
 			fclose(fd);
 			return 1;
 		}
-		
-		/* diagnostic to track buffers */
+
+                /* diagnostic to track buffers */
 		qprintf(s, ".");
 		if(s->verbose)
 			fflush(stdout);
 	}
 	qprintf(s, "bcc_pgm: Programmed %d bytes \n", ct);
-	
-	/* success */
+
+        /* success */
 	fclose(fd);
 	return 0;
 }
@@ -641,8 +640,8 @@ void bcc_delete(bfpga *s)
 	/* Release SPI bus */
 	bcc_i2c_pcf_wr(s,PCF_FPGA_SPI_MODE,1);			// drive nOE line high
 	qprintf(s, "bcc_init: OMAP off SPI bus\n");
-		
-	close(s->spi_file);		/* close the SPI device */
+
+        close(s->spi_file);		/* close the SPI device */
 	close(s->i2c_file);		/* close the I2C device */
 	free(s);				/* free the structure */
 }

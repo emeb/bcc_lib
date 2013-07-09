@@ -27,12 +27,12 @@
 #define I2C_SMBUS_READ	1
 #define I2C_SMBUS_WRITE	0
 #define I2C_SMBUS_BYTE		    1
-#define I2C_SMBUS_BYTE_DATA	    2 
+#define I2C_SMBUS_BYTE_DATA	    2
 
-/* 
- * Data for SMBus Messages 
+/*
+ * Data for SMBus Messages
  */
-#define I2C_SMBUS_BLOCK_MAX	32	/* As specified in SMBus standard */	
+#define I2C_SMBUS_BLOCK_MAX	32	/* As specified in SMBus standard */
 #define I2C_SMBUS_I2C_BLOCK_MAX	32	/* Not specified but we use same structure */
 union i2c_smbus_data {
 	__u8 byte;
@@ -55,9 +55,9 @@ struct i2c_smbus_ioctl_data {
 #define PCF_FPGA_PROG 5			/* starts cfg - pulse low to begin */
 #define PCF_FPGA_SPI_MODE 4		/* drive low to enable OMAP onto SPI bus */
 #define PCF_OMAP_FLASH_DRV 3	/* drive low to read/write SPI Flash */
-#define PCF_LVS_C_DIR 2			/* mcbsp3 dx dir */ 
-#define PCF_LVS_E_DIR 1			/* mcbsp3 fsx dir */ 
-#define PCF_LVS_F_DIR 0			/* mcbsp3 dr dir */ 
+#define PCF_LVS_C_DIR 2			/* mcbsp3 dx dir */
+#define PCF_LVS_E_DIR 1			/* mcbsp3 fsx dir */
+#define PCF_LVS_F_DIR 0			/* mcbsp3 dr dir */
 
 /* M25P20 Instructions */
 #define FLASH_WREN 0x06			/* Write Enable */
