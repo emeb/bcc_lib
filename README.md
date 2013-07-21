@@ -12,6 +12,23 @@ In addition to the application, an underlying interface library is
 also provided which facilitates creation of additional applications
 for interfacing to the FPGA via the SPI interface.
 
+Building & Installing
+=====================
+
+In order to build/install the bcc_tool do the following.
+
+1. Clone the repository
+
+2. cd to the directory containing the source files
+
+3. Execute the configure script: $ ./configure
+
+4. Build the files: $ make
+
+5. Install the library and tool: $ sudo make install
+
+6. Run ldconfig to load new librarys for development: $ sudo ldconfig
+
 bcc_tool
 ========
 
